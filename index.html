@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>worker</title>
+  </head>
+  <style>
+    .wrapper {
+      margin: 20px;
+    }
+    #moban {
+      display: none;
+    }
+  </style>
+  <body>
+    <div>
+      <input type="button" name="start" id="start" value="开启线程" />
+    </div>
+    <div class="wrapper" id="moban">
+      <div class="title">线程1</div>
+      <input type="text" class="ipt" name="ipt" value="0" /><br />
+      <input type="button" class="stop" name="stop" value="stop" />
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script type="text/javascript">
+      var ipt = document.getElementById('ipt')
+      var start = document.getElementById('start')
+      var index = 0
+      var workers = []
+      function getMessage(worker, id) {
+        worker.onmessage = function () {
+          $('#' + id)
+            .children('.ipt')
+            .val(event.data)
+        }
+      }
+
+      $('.stop').click(function (e) {
+        // console.log(e.target.parentNode.id)
+        var currentId = e.target.parentNode.id
+        var currentWorker = workers.find((item) => item.id === currentId).worker
+        //用于关闭worker线程
+        currentWorker.terminate()
+      })
+
+      start.addEventListener('click', function () {
+        index++
+        var strVar = $('#moban').clone(true)
+        var id = 'xc' + index
+        strVar.children('.title').html('线程' + index)
+        strVar.attr('id', id)
+        $('body').append(strVar)
+
+        //开启worker线程
+        var worker = new Worker('js/test.js')
+        workers.push({
+          id: id,
+          worker: worker
+        })
+        getMessage(worker, id)
+      })
+    </script>
+  </body>
+</html>
